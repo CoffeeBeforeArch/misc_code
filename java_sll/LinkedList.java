@@ -21,7 +21,6 @@ class LinkedList {
     public static LinkedList insert(LinkedList list, int data){
         // Create a new node based on the data
         Node new_node = new Node(data);
-        new_node.next = null;
 
         // Handle case that the list is empty
         // Otherwise normal insertion
@@ -29,15 +28,15 @@ class LinkedList {
             list.head = new_node;
         } else{
             // Start traversal at head
-            Node temp_node = list.head;
+            Node temp = list.head;
 
             // Walk until you find the last node that points to null
-            while(temp_node.next != null){
-                temp_node = temp_node.next;
+            while(temp.next != null){
+                temp = temp.next;
             }
 
             // Insert the new node at the end of the list
-            temp_node.next = new_node;
+            temp.next = new_node;
         }
 
         // Return the updated list
