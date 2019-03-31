@@ -111,6 +111,5 @@ class LinkedList {
             printList(ll);
         }
     }
-
-
 }
+
