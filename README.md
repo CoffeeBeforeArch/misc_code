@@ -1,4 +1,4 @@
-# Miscellaneous Videos and Code
+# Miscellaneous Code
 
 This repository contains all code from YouTube videos not associated with any particular series by CoffeeBeforeArch but suggested by viewers.
 
@@ -14,4 +14,4 @@ Text Editor: VIM
 ## Concepts covered in viewer-suggested videos 
 | Video | Concepts | Files |
 | ----- | -------- | ----- |
-| <a href=https://youtu.be/vxdb7s8DE6o>Viewer Requests: Linked Lists in Java</a> | Singly Linked List, Java | <a href=https://github.com/CoffeeBeforeArch/misc_code/blob/master/java_sll/LinkedList.java>LinkedList.java</a> |
+| <a href=https://youtu.be/m7XmKrl0Q9A>Viewer Suggestions: Singly Linked Lists in Java</a> | Singly Linked List, Java | <a href=https://github.com/CoffeeBeforeArch/misc_code/blob/master/java_sll/LinkedList.java>LinkedList.java</a> |
