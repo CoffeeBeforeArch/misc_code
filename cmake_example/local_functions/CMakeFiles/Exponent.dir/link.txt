@@ -1,0 +1,2 @@
+/usr/bin/ar qc libExponent.a  CMakeFiles/Exponent.dir/exponent.cpp.o
+/usr/bin/ranlib libExponent.a

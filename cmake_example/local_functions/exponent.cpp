@@ -1,5 +1,5 @@
 // This file contains the definition of an exponent function
-int pow(int base, int exponent){
+int myPow(int base, int exponent){
     int tmp = base;
     
     // Return 1 for exponent of 0

@@ -1,4 +1,4 @@
 // This file contains the configured options for our CMake example
 #define Powers_VERSION_MAJOR @Powers_VERSION_MAJOR@
 #define Powers_VERSION_MINOR @Powers_VERSION_MINOR@
-
+#cmakedefine USE_MYMATH

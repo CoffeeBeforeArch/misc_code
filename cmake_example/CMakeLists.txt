@@ -17,5 +17,20 @@ configure_file (
 # This is necessary to find our generated header file
 include_directories("${PROJECT_BINARY_DIR}")
 
+# See if we should use our "myPow" function
+option (USE_MYMATH "Use our own exponent function" ON)
+
+# Act conditionally based on this option
+if(USE_MYMATH)
+    # Add directories for our "myPow" prototype
+    include_directories ("${PROJECT_SOURCE_DIR}/local_functions")
+    # Add subdirectory so that the "myPow" function will be built
+    add_subdirectory (local_functions)
+    set (EXTRA_LIBS ${EXTRA_LIBS} Exponent)
+endif(USE_MYMATH)
+
 # Builds an executable "Powers" from source "powers.cxx"
-add_executable(Powers powers.cxx)
+add_executable(Powers powers.cpp)
+# Target our library for linking
+target_link_libraries(Powers ${EXTRA_LIBS})
+
