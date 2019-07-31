@@ -103,6 +103,7 @@ int main(){
     }
 
     // Which array we copy back from depends on the final iter #
+    // Only a single sum needs to be copied out
     if(iter % 2){
         cudaMemcpy(h_v_out, d_v_out, sizeof(int), cudaMemcpyDeviceToHost);
     }else{
