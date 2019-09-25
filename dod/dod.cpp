@@ -4,17 +4,15 @@
 #include <benchmark/benchmark.h>
 #include <algorithm>
 #include <iterator>
-#include <numeric>
 #include <vector>
 
 using std::back_inserter;
 using std::fill_n;
-using std::iota;
 using std::vector;
 
 // A simple struct aligned in such a way no two instances will be on
 // the same cache line (64 bytes cache lines, 64 byte alignment)
-struct AlignedStruct {
+struct SimpleStruct {
   // Struct with a 16 integer fields
   int v0 = 0;
   int v1 = 0;
@@ -94,8 +92,8 @@ static void ArrayOfStructs_Bench(benchmark::State &s) {
   int N = 1 << s.range(0);
 
   // Create a vector for the PaddedStruct
-  vector<AlignedStruct> v;
-  fill_n(back_inserter(v), N, AlignedStruct());
+  vector<SimpleStruct> v;
+  fill_n(back_inserter(v), N, SimpleStruct());
 
   // Profile the update for each field
   while (s.KeepRunning()) {
@@ -117,7 +115,7 @@ static void StructOfArrays_Bench(benchmark::State &s) {
   SoA struct_of_arrays(N);
 
   // Profile the update of each field
-  while (s.KeepRunning()){
+  while (s.KeepRunning()) {
     struct_of_arrays.update_v0();
   }
 }
