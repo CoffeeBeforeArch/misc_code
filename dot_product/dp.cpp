@@ -10,9 +10,9 @@
 #include <vector>
 
 // Classic C-style dot product
-int dot_product1(std::vector<float> &__restrict v1,
-                 std::vector<float> &__restrict v2) {
-  auto tmp = 0;
+float dot_product1(std::vector<float> &__restrict v1,
+                   std::vector<float> &__restrict v2) {
+  float tmp = 0.0;
   for (size_t i = 0; i < v1.size(); i++) {
     tmp += v1[i] * v2[i];
   }
@@ -20,11 +20,19 @@ int dot_product1(std::vector<float> &__restrict v1,
 }
 
 // Modern C++ dot product
-int dot_product2(std::vector<float> &__restrict v1,
-                 std::vector<float> &__restrict v2) {
+float dot_product2(std::vector<float> &__restrict v1,
+                   std::vector<float> &__restrict v2) {
   return std::transform_reduce(std::execution::unseq, begin(v1), end(v1),
-                               begin(v2), 0);
+                               begin(v2), 0.0f);
 }
+
+// Modern C++ dot product
+float dot_product4(std::vector<float> &__restrict v1,
+                   std::vector<float> &__restrict v2) {
+  return std::transform_reduce(std::execution::unseq, begin(v1), end(v1),
+                               begin(v2), 0.0);
+}
+
 
 // Hand-vectorized dot product
 float dot_product3(const float *__restrict v1, const float *v2,
@@ -87,6 +95,27 @@ static void modernDP(benchmark::State &s) {
   }
 }
 BENCHMARK(modernDP)->DenseRange(8, 10);
+
+// Benchmark the modern C++ dot product
+static void modernDP_double(benchmark::State &s) {
+  // Get the size of the vector
+  size_t N = 1 << s.range(0);
+
+  // Initialize the vectors
+  std::vector<float> v1;
+  std::fill_n(std::back_inserter(v1), N, rand() % 100);
+  std::vector<float> v2;
+  std::fill_n(std::back_inserter(v2), N, rand() % 100);
+
+  // Keep our result from being optimized away
+  volatile float result = 0;
+
+  // Our benchmark loop
+  while (s.KeepRunning()) {
+    result = dot_product4(v1, v2);
+  }
+}
+BENCHMARK(modernDP_double)->DenseRange(8, 10);
 
 // Benchmark our hand-tuned dot product
 static void handTunedDP(benchmark::State &s) {
