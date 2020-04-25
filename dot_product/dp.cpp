@@ -27,7 +27,7 @@ float dot_product2(std::vector<float> &__restrict v1,
 }
 
 // Modern C++ dot product
-float dot_product4(std::vector<float> &__restrict v1,
+float dot_product3(std::vector<float> &__restrict v1,
                    std::vector<float> &__restrict v2) {
   return std::transform_reduce(std::execution::unseq, begin(v1), end(v1),
                                begin(v2), 0.0);
@@ -35,9 +35,9 @@ float dot_product4(std::vector<float> &__restrict v1,
 
 
 // Hand-vectorized dot product
-float dot_product3(const float *__restrict v1, const float *v2,
+float dot_product4(const float *__restrict v1, const float *v2,
                    const size_t N) {
-  auto tmp = 0;
+  auto tmp = 0.0f;
   for (size_t i = 0; i < N; i += 8) {
     // Temporary variables to help with intrinsic
     float r[8];
@@ -94,7 +94,7 @@ static void modernDP(benchmark::State &s) {
     result = dot_product2(v1, v2);
   }
 }
-BENCHMARK(modernDP)->DenseRange(8, 10);
+BENCHMARK(modernDP)->DenseRange(8, 10)->Iterations(2000000);
 
 // Benchmark the modern C++ dot product
 static void modernDP_double(benchmark::State &s) {
@@ -112,10 +112,10 @@ static void modernDP_double(benchmark::State &s) {
 
   // Our benchmark loop
   while (s.KeepRunning()) {
-    result = dot_product4(v1, v2);
+    result = dot_product3(v1, v2);
   }
 }
-BENCHMARK(modernDP_double)->DenseRange(8, 10);
+BENCHMARK(modernDP_double)->DenseRange(8, 10)->Iterations(2000000);
 
 // Benchmark our hand-tuned dot product
 static void handTunedDP(benchmark::State &s) {
@@ -136,10 +136,10 @@ static void handTunedDP(benchmark::State &s) {
 
   // Our benchmark loop
   while (s.KeepRunning()) {
-    result = dot_product3(v1, v2, N);
+    result = dot_product4(v1, v2, N);
   }
 }
-BENCHMARK(handTunedDP)->DenseRange(8, 10);
+BENCHMARK(handTunedDP)->DenseRange(8, 10)->Iterations(2000000);
 
 // Our benchmark main function
 BENCHMARK_MAIN();
