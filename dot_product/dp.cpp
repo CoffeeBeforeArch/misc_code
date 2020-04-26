@@ -49,7 +49,7 @@ float dot_product4(const float *__restrict v1, const float *v2,
     // Avoid type punning using memcpy
     std::memcpy(r, &rv, sizeof(float) * 8);
 
-    tmp += r[0] * r[4];
+    tmp += r[0] + r[4];
   }
   return tmp;
 }
