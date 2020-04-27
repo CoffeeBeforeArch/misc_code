@@ -64,7 +64,7 @@ int main() {
 
   // Host-side input vector
   std::vector<int> h_v(n);
-  std::generate(begin(h_v), end(h_v), []() { return 1; });
+  std::generate(begin(h_v), end(h_v), []() { return rand() % 10; });
 
   // Single result element
   int h_v_r = 0;
