@@ -3,10 +3,6 @@
 
 #include <benchmark/benchmark.h>
 #include <algorithm>
-#include <cstdint>
-#include <execution>
-#include <functional>
-#include <numeric>
 #include <vector>
 #include <random>
 
@@ -24,7 +20,8 @@ static void branchBench(benchmark::State &s) {
   std::vector<bool> v_in(N);
   std::generate(begin(v_in), end(v_in), [&]() { return d(gen); });
 
-  // Output vector
+  // Output element
+  // Dynamically allocated int isn't optimized away
   int *sink = new int;
   *sink = 0;
 
@@ -34,6 +31,7 @@ static void branchBench(benchmark::State &s) {
       if (b) *sink += 41;
   }
 
+  // Free our memory
   delete sink;
 }
 BENCHMARK(branchBench)->DenseRange(10, 12);
@@ -52,7 +50,8 @@ static void logicBenchBool(benchmark::State &s) {
   std::vector<bool> v_in(N);
   std::generate(begin(v_in), end(v_in), [&]() { return d(gen); });
 
-  // Output vector
+  // Output element
+  // Dynamically allocated int isn't optimized away
   int *sink = new int;
   *sink = 0;
 
@@ -61,6 +60,7 @@ static void logicBenchBool(benchmark::State &s) {
     for (auto b : v_in) *sink += 41 * b;
   }
 
+  // Free our memory
   delete sink;
 }
 BENCHMARK(logicBenchBool)->DenseRange(10, 12);
@@ -79,7 +79,8 @@ static void logicBenchChar(benchmark::State &s) {
   std::vector<char> v_in(N);
   std::generate(begin(v_in), end(v_in), [&]() { return d(gen); });
 
-  // Output vector
+  // Output element
+  // Dynamically allocated int isn't optimized away
   int *sink = new int;
   *sink = 0;
 
@@ -88,6 +89,7 @@ static void logicBenchChar(benchmark::State &s) {
     for (auto b : v_in) *sink += 41 * b;
   }
 
+  // Free our memory
   delete sink;
 }
 BENCHMARK(logicBenchChar)->DenseRange(10, 12);
@@ -106,7 +108,8 @@ static void logicBenchInt(benchmark::State &s) {
   std::vector<int> v_in(N);
   std::generate(begin(v_in), end(v_in), [&]() { return d(gen); });
 
-  // Output vector
+  // Output element
+  // Dynamically allocated int isn't optimized away
   int *sink = new int;
   *sink = 0;
 
@@ -115,6 +118,7 @@ static void logicBenchInt(benchmark::State &s) {
     for (auto b : v_in) *sink += 41 * b;
   }
 
+  // Free our memory
   delete sink;
 }
 BENCHMARK(logicBenchInt)->DenseRange(10, 12);
