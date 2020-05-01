@@ -4,29 +4,37 @@
 #include <benchmark/benchmark.h>
 #include <algorithm>
 #include <cstdint>
-#include <cstdlib>
 #include <execution>
 #include <functional>
 #include <numeric>
 #include <vector>
+#include <random>
 
 // Benchmark for using branches
 static void branchBench(benchmark::State &s) {
   // Get the input vector size
   auto N = 1 << s.range(0);
 
+  // Create random number generator
+  std::random_device rd;
+  std::mt19937 gen(rd());
+  std::bernoulli_distribution d(0.5);
+
   // Create a vector of random booleans
   std::vector<bool> v_in(N);
-  std::generate(begin(v_in), end(v_in), []() { return rand() % 2; });
+  std::generate(begin(v_in), end(v_in), [&]() { return d(gen); });
 
   // Output vector
-  std::vector<int> v_out(N);
+  int *sink = new int;
+  *sink = 0;
 
   // Benchmark main loop
   while (s.KeepRunning()) {
-    for (size_t i = 0; i < v_in.size(); ++i)
-      if (v_in[i]) v_out[i] += 41;
+    for (auto b : v_in)
+      if (b) *sink += 41;
   }
+
+  delete sink;
 }
 BENCHMARK(branchBench)->DenseRange(10, 12);
 
@@ -35,9 +43,14 @@ static void logicBenchBool(benchmark::State &s) {
   // Get the input vector size
   auto N = 1 << s.range(0);
 
+  // Create random number generator
+  std::random_device rd;
+  std::mt19937 gen(rd());
+  std::bernoulli_distribution d(0.5);
+
   // Create a vector of random booleans
   std::vector<bool> v_in(N);
-  std::generate(begin(v_in), end(v_in), []() { return rand() % 2; });
+  std::generate(begin(v_in), end(v_in), [&]() { return d(gen); });
 
   // Output vector
   int *sink = new int;
@@ -57,9 +70,14 @@ static void logicBenchChar(benchmark::State &s) {
   // Get the input vector size
   auto N = 1 << s.range(0);
 
-  // Create a vector of random booleans stored as characters
+  // Create random number generator
+  std::random_device rd;
+  std::mt19937 gen(rd());
+  std::bernoulli_distribution d(0.5);
+
+  // Create a vector of random booleans
   std::vector<char> v_in(N);
-  std::generate(begin(v_in), end(v_in), []() { return rand() % 2; });
+  std::generate(begin(v_in), end(v_in), [&]() { return d(gen); });
 
   // Output vector
   int *sink = new int;
@@ -79,9 +97,14 @@ static void logicBenchInt(benchmark::State &s) {
   // Get the input vector size
   auto N = 1 << s.range(0);
 
-  // Create a vector of random booleans stored as integers
+  // Create random number generator
+  std::random_device rd;
+  std::mt19937 gen(rd());
+  std::bernoulli_distribution d(0.5);
+
+  // Create a vector of random booleans
   std::vector<int> v_in(N);
-  std::generate(begin(v_in), end(v_in), []() { return rand() % 2; });
+  std::generate(begin(v_in), end(v_in), [&]() { return d(gen); });
 
   // Output vector
   int *sink = new int;
