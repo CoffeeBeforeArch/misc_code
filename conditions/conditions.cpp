@@ -18,7 +18,7 @@ static void branchBench(benchmark::State &s) {
   // Create a vector of random booleans
   std::vector<bool> v_in(N);
   std::generate(begin(v_in), end(v_in), []() { return rand() % 2; });
-  
+
   // Output vector
   std::vector<int> v_out(N);
 
@@ -38,14 +38,17 @@ static void logicBenchBool(benchmark::State &s) {
   // Create a vector of random booleans
   std::vector<bool> v_in(N);
   std::generate(begin(v_in), end(v_in), []() { return rand() % 2; });
-  
+
   // Output vector
-  std::vector<int> v_out(N);
+  int *sink = new int;
+  *sink = 0;
 
   // Benchmark main loop
   while (s.KeepRunning()) {
-    for (size_t i = 0; i < v_in.size(); ++i) v_out[i] += 41 * v_in[i];
+    for (auto b : v_in) *sink += 41 * b;
   }
+
+  delete sink;
 }
 BENCHMARK(logicBenchBool)->DenseRange(10, 12);
 
@@ -57,14 +60,17 @@ static void logicBenchChar(benchmark::State &s) {
   // Create a vector of random booleans stored as characters
   std::vector<char> v_in(N);
   std::generate(begin(v_in), end(v_in), []() { return rand() % 2; });
-  
+
   // Output vector
-  std::vector<int> v_out(N);
+  int *sink = new int;
+  *sink = 0;
 
   // Benchmark main loop
   while (s.KeepRunning()) {
-    for (size_t i = 0; i < v_in.size(); ++i) v_out[i] += 41 * v_in[i];
+    for (auto b : v_in) *sink += 41 * b;
   }
+
+  delete sink;
 }
 BENCHMARK(logicBenchChar)->DenseRange(10, 12);
 
@@ -76,14 +82,17 @@ static void logicBenchInt(benchmark::State &s) {
   // Create a vector of random booleans stored as integers
   std::vector<int> v_in(N);
   std::generate(begin(v_in), end(v_in), []() { return rand() % 2; });
-  
+
   // Output vector
-  std::vector<int> v_out(N);
+  int *sink = new int;
+  *sink = 0;
 
   // Benchmark main loop
   while (s.KeepRunning()) {
-    for (size_t i = 0; i < v_in.size(); ++i) v_out[i] += 41 * v_in[i];
+    for (auto b : v_in) *sink += 41 * b;
   }
+
+  delete sink;
 }
 BENCHMARK(logicBenchInt)->DenseRange(10, 12);
 
