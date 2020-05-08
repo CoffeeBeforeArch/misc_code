@@ -94,7 +94,7 @@ static void modernDP(benchmark::State &s) {
     result = dot_product2(v1, v2);
   }
 }
-BENCHMARK(modernDP)->DenseRange(8, 10)->Iterations(2000000);
+BENCHMARK(modernDP)->DenseRange(8, 10);
 
 // Benchmark the modern C++ dot product
 static void modernDP_double(benchmark::State &s) {
@@ -115,7 +115,7 @@ static void modernDP_double(benchmark::State &s) {
     result = dot_product3(v1, v2);
   }
 }
-BENCHMARK(modernDP_double)->DenseRange(8, 10)->Iterations(2000000);
+BENCHMARK(modernDP_double)->DenseRange(8, 10);
 
 // Benchmark our hand-tuned dot product
 static void handTunedDP(benchmark::State &s) {
@@ -139,7 +139,7 @@ static void handTunedDP(benchmark::State &s) {
     result = dot_product4(v1, v2, N);
   }
 }
-BENCHMARK(handTunedDP)->DenseRange(8, 10)->Iterations(2000000);
+BENCHMARK(handTunedDP)->DenseRange(8, 10);
 
 // Our benchmark main function
 BENCHMARK_MAIN();
