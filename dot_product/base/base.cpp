@@ -10,7 +10,7 @@
 // Classic C-style dot product
 float dot_product(std::vector<float> &__restrict v1,
                   std::vector<float> &__restrict v2) {
-  float tmp = 0.0;
+  float tmp = 0.0f;
   for (size_t i = 0; i < v1.size(); i++) {
     tmp += v1[i] * v2[i];
   }
@@ -29,7 +29,7 @@ static void baseDP(benchmark::State &s) {
   std::fill_n(std::back_inserter(v2), N, rand() % 100);
 
   // Keep the result from being optimized away
-  volatile float result = 0;
+  volatile float result = 0.0f;
 
   // Our benchmark loop
   while (s.KeepRunning()) {
