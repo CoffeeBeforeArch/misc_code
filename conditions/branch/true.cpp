@@ -28,6 +28,6 @@ static void branchBenchTrue(benchmark::State &s) {
   // Free our memory
   delete sink;
 }
-BENCHMARK(branchBenchTrue)->DenseRange(10, 12);
+BENCHMARK(branchBenchTrue)->DenseRange(12, 14)->Unit(benchmark::kMicrosecond);
 
 BENCHMARK_MAIN();
