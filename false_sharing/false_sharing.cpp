@@ -20,7 +20,7 @@ void false_sharing() {
   std::atomic<int> c{0};
   std::atomic<int> d{0};
 
-  // Creat four threads and use lambda to launch work
+  // Create four threads and use lambda to launch work
   std::thread t1([&]() { work(a); });
   std::thread t2([&]() { work(b); });
   std::thread t3([&]() { work(c); });
