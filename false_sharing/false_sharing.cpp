@@ -21,16 +21,16 @@ void false_sharing() {
   std::atomic<int> d{0};
 
   // Create four threads and use lambda to launch work
-  std::thread t1([&]() { work(a); });
-  std::thread t2([&]() { work(b); });
-  std::thread t3([&]() { work(c); });
-  std::thread t4([&]() { work(d); });
+  std::thread t0([&]() { work(a); });
+  std::thread t1([&]() { work(b); });
+  std::thread t2([&]() { work(c); });
+  std::thread t3([&]() { work(d); });
 
   // Join the threads
+  t0.join();
   t1.join();
   t2.join();
   t3.join();
-  t4.join();
 }
 
 // False sharing benchmark
