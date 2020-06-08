@@ -25,6 +25,6 @@ static void srMod(benchmark::State &s) {
     for (size_t i = 0; i < v_in.size(); i++) v_out[i] = v_in[i] % 2;
   }
 }
-BENCHMARK(altMod)->Unit(benchmark::kMicrosecond);
+BENCHMARK(srMod)->Unit(benchmark::kMicrosecond);
 
 BENCHMARK_MAIN();
