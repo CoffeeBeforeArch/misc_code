@@ -2,6 +2,7 @@
 // By: Nick from CoffeeBeforeArch
 
 #include <benchmark/benchmark.h>
+
 #include <vector>
 
 // Benchmark idiv instruction
