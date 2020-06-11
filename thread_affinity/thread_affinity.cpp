@@ -70,7 +70,7 @@ void thread_affinity() {
   std::thread t1([&]() { work(a.val); });
   assert(pthread_setaffinity_np(t1.native_handle(), sizeof(cpu_set_t),
                                 &cpu_set_1) == 0);
- 
+
   // Create thread 1 and 2, and pin them to core 1
   std::thread t2([&]() { work(b.val); });
   assert(pthread_setaffinity_np(t2.native_handle(), sizeof(cpu_set_t),
