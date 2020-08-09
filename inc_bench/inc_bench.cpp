@@ -50,7 +50,8 @@ static void atomic_bench(benchmark::State &s) {
 }
 BENCHMARK(atomic_bench)
     ->DenseRange(1, std::thread::hardware_concurrency())
-    ->Unit(benchmark::kMillisecond);
+    ->Unit(benchmark::kMillisecond)
+    ->UseRealTime();
 
 // Lock guard bench
 static void lock_guard_bench(benchmark::State &s) {
@@ -83,7 +84,7 @@ static void lock_guard_bench(benchmark::State &s) {
 }
 BENCHMARK(lock_guard_bench)
     ->DenseRange(1, std::thread::hardware_concurrency())
-    ->Unit(benchmark::kMillisecond);
-
+    ->Unit(benchmark::kMillisecond)
+    ->UseRealTime();
 
 BENCHMARK_MAIN();
