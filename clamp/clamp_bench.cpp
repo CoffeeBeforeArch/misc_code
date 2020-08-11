@@ -59,4 +59,58 @@ static void clamp_bench_raw_ptr(benchmark::State &s) {
 }
 BENCHMARK(clamp_bench_raw_ptr)->DenseRange(8, 10);
 
+// Benchmark for a clamp function
+static void clamp_bench_lambda(benchmark::State &s) {
+  // Number of elements in the vector
+  auto N = 1 << s.range(0);
+
+  // Create our random number generators
+  std::mt19937 rng;
+  rng.seed(std::random_device()());
+  std::uniform_int_distribution<int> dist(0, 1024);
+
+  // Create a vector of random integers
+  std::vector<int> v_in(N);
+  std::vector<int> v_out(N);
+  std::generate(begin(v_in), end(v_in), [&]() { return dist(rng); });
+
+  // Our clamp function
+  auto clamp = [](int in) { return (in > 512) ? 512 : in; };
+
+  // Main benchmark loop
+  for (auto _ : s) {
+    std::transform(begin(v_in), end(v_in), begin(v_out), clamp);
+  }
+}
+BENCHMARK(clamp_bench_lambda)->DenseRange(8, 10);
+
+// Benchmark for a clamp function
+// Uses raw pointers to avoid overhead in unoptimized code
+static void clamp_bench_raw_ptr_lambda(benchmark::State &s) {
+  // Number of elements in the vector
+  auto N = 1 << s.range(0);
+
+  // Create our random number generators
+  std::mt19937 rng;
+  rng.seed(std::random_device()());
+  std::uniform_int_distribution<int> dist(0, 1024);
+
+  // Create a vector of random integers
+  int *v_in = new int[N]();
+  int *v_out = new int[N]();
+  std::generate(v_in, v_in + N, [&]() { return dist(rng); });
+
+  // Our clamp function
+  auto clamp = [](int in) { return (in > 512) ? 512 : in; };
+
+  // Main benchmark loop
+  for (auto _ : s) {
+    std::transform(v_in, v_in + N, v_out, clamp);
+  }
+
+  delete[] v_in;
+  delete[] v_out;
+}
+BENCHMARK(clamp_bench_raw_ptr_lambda)->DenseRange(8, 10);
+
 BENCHMARK_MAIN();
