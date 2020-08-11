@@ -32,6 +32,7 @@ static void clamp_bench(benchmark::State &s) {
 BENCHMARK(clamp_bench)->DenseRange(8, 10);
 
 // Benchmark for a clamp function
+// Uses raw pointers to avoid overhead in unoptimized code
 static void clamp_bench_raw_ptr(benchmark::State &s) {
   // Number of elements in the vector
   auto N = 1 << s.range(0);
@@ -52,6 +53,9 @@ static void clamp_bench_raw_ptr(benchmark::State &s) {
       v_out[i] = (v_in[i] > 512) ? 512 : v_in[i];
     }
   }
+
+  delete[] v_in;
+  delete[] v_out;
 }
 BENCHMARK(clamp_bench_raw_ptr)->DenseRange(8, 10);
 
