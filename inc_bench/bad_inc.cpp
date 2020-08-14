@@ -9,7 +9,7 @@ int main() {
   int shared_val = 0;
 
   // Number of iterations (65536)
-  int N = 1 << 20;
+  int N = 1 << 16;
 
   // Lambda that performs an increment
   auto inc_func = [&]() {

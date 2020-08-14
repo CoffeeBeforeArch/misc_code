@@ -1,4 +1,4 @@
-// Benchmark for clamp function
+// Benchmarks for compiler optimizations of a clamp function
 // By: Nick from CoffeeBeforeArch
 
 #include <algorithm>
@@ -8,6 +8,7 @@
 #include "benchmark/benchmark.h"
 
 // Benchmark for a clamp function
+// std::vector + for-loop
 static void clamp_bench(benchmark::State &s) {
   // Number of elements in the vector
   auto N = 1 << s.range(0);
@@ -24,15 +25,15 @@ static void clamp_bench(benchmark::State &s) {
 
   // Main benchmark loop
   for (auto _ : s) {
-    for (std::size_t i = 0; i < v_in.size(); i++) {
-      v_out[i] = (v_in[i] > 512) ? 512 : v_in[i];
+    for (int i = 0; i < N; i++) {
+      v_out[i] = (v_in[i] >= 512) ? 512 : v_in[i];
     }
   }
 }
 BENCHMARK(clamp_bench)->DenseRange(8, 10);
 
 // Benchmark for a clamp function
-// Uses raw pointers to avoid overhead in unoptimized code
+// Raw pointers + for-loop
 static void clamp_bench_raw_ptr(benchmark::State &s) {
   // Number of elements in the vector
   auto N = 1 << s.range(0);
@@ -50,7 +51,7 @@ static void clamp_bench_raw_ptr(benchmark::State &s) {
   // Main benchmark loop
   for (auto _ : s) {
     for (int i = 0; i < N; i++) {
-      v_out[i] = (v_in[i] > 512) ? 512 : v_in[i];
+      v_out[i] = (v_in[i] >= 512) ? 512 : v_in[i];
     }
   }
 
@@ -60,6 +61,7 @@ static void clamp_bench_raw_ptr(benchmark::State &s) {
 BENCHMARK(clamp_bench_raw_ptr)->DenseRange(8, 10);
 
 // Benchmark for a clamp function
+// std::vector + std::transform
 static void clamp_bench_lambda(benchmark::State &s) {
   // Number of elements in the vector
   auto N = 1 << s.range(0);
@@ -75,7 +77,7 @@ static void clamp_bench_lambda(benchmark::State &s) {
   std::generate(begin(v_in), end(v_in), [&]() { return dist(rng); });
 
   // Our clamp function
-  auto clamp = [](int in) { return (in > 512) ? 512 : in; };
+  auto clamp = [](int in) { return (in >= 512) ? 512 : in; };
 
   // Main benchmark loop
   for (auto _ : s) {
@@ -85,7 +87,7 @@ static void clamp_bench_lambda(benchmark::State &s) {
 BENCHMARK(clamp_bench_lambda)->DenseRange(8, 10);
 
 // Benchmark for a clamp function
-// Uses raw pointers to avoid overhead in unoptimized code
+// Raw pointers + std::transform
 static void clamp_bench_raw_ptr_lambda(benchmark::State &s) {
   // Number of elements in the vector
   auto N = 1 << s.range(0);
@@ -101,7 +103,7 @@ static void clamp_bench_raw_ptr_lambda(benchmark::State &s) {
   std::generate(v_in, v_in + N, [&]() { return dist(rng); });
 
   // Our clamp function
-  auto clamp = [](int in) { return (in > 512) ? 512 : in; };
+  auto clamp = [](int in) { return (in >= 512) ? 512 : in; };
 
   // Main benchmark loop
   for (auto _ : s) {
