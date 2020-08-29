@@ -20,7 +20,7 @@ void reduce_parallel_dynamic(std::vector<std::int64_t> &v_in,
   // Get a new block of work
   for (auto start = pos.fetch_add(4096); start < N; start = pos.fetch_add(4096))
     // Sum all the elements in that block
-    for (auto i = start; i < 4096; i++) local_sum += v_in[start + i];
+    for (auto i = start; i < start + 4096; i++) local_sum += v_in[i];
 
   // Update the global sum
   sum += local_sum;
