@@ -35,6 +35,8 @@ static void parallel_static(benchmark::State &s) {
   std::vector<std::thread> threads;
   auto num_threads = std::thread::hardware_concurrency();
   threads.reserve(num_threads);
+
+  // Number of elements for each thread
   std::int64_t stride = N / num_threads;
 
   // Main benchmark loop

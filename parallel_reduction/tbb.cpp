@@ -21,6 +21,7 @@ static void parallel_tbb(benchmark::State &s) {
 
   // Main benchmark loop
   for (auto _ : s) {
+    // Mark as `DoNotOptimize` to make sure the result isn't optimized out
     benchmark::DoNotOptimize(
         sink = std::reduce(std::execution::par_unseq, begin(v_in), end(v_in)));
   }

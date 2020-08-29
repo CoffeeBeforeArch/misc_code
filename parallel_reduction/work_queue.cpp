@@ -10,15 +10,17 @@
 #include <thread>
 #include <vector>
 
+// Parallel sum reduction with statically mapped work
 void reduce_parallel_dynamic(std::vector<std::int64_t> &v_in,
                              std::atomic<std::int64_t> &sum,
                              std::atomic<std::int64_t> &pos, std::int64_t N) {
   // Keep a local sum to minimize traffic
   std::int64_t local_sum = 0;
 
-  // Sum all the elements for this thread
+  // Get a new block of work
   for (auto start = pos.fetch_add(4096); start < N; start = pos.fetch_add(4096))
-    for (auto i = start; i < 4096; i++) local_sum += v_in[i];
+    // Sum all the elements in that block
+    for (auto i = start; i < 4096; i++) local_sum += v_in[start + i];
 
   // Update the global sum
   sum += local_sum;
