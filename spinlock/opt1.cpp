@@ -1,4 +1,6 @@
-// This program benchmarks a simple spinlock in C++
+// This program benchmarks an improved spinlock C++
+// Optimizations:
+//  1.) Spin locally
 // By: Nick from CoffeeBeforeArch
 
 #include <benchmark/benchmark.h>
@@ -8,17 +10,24 @@
 #include <thread>
 
 // Simple Spinlock
+// Lock now performs local spinning
 struct Spinlock {
   // Lock is just an atomic bool
   std::atomic<bool> locked{false};
 
   // Locking mechanism
   void lock() {
-    // Exchange will return the previous value of the lock
-    // If the lock is free (false), it is set to true and the loop exits
-    // If the lock is taken (true), spin in the loop until the loop exits
-    while (locked.exchange(true))
-      ;
+    // Keep trying
+    while (1) {
+      // Try and grab the lock
+      // Return if we get the lock
+      if (!locked.exchange(true)) return;
+
+      // If we didn't get the lock, just read the value which gets cached
+      // locally This leads to less traffic
+      while (locked.load())
+        ;
+    }
   }
 
   // Unlocking mechanism
