@@ -47,7 +47,7 @@ void inc(Spinlock &s, std::int64_t &val) {
 }
 
 // Benchmark for naive spinlock
-static void naive_spinlock(benchmark::State &s) {
+static void backoff(benchmark::State &s) {
   // Sweep over a range of threads
   auto num_threads = s.range(0);
 
@@ -70,7 +70,7 @@ static void naive_spinlock(benchmark::State &s) {
     threads.clear();
   }
 }
-BENCHMARK(naive_spinlock)
+BENCHMARK(backoff)
     ->DenseRange(1, std::thread::hardware_concurrency())
     ->UseRealTime()
     ->Unit(benchmark::kMillisecond);
