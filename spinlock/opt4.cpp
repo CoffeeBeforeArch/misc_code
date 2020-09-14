@@ -1,70 +1,41 @@
-// This program benchmarks an improved spinlock C++
-// Optimizations:
-//  1.) Spin locally
+// This program benchmarks std::mutex C++
 // By: Nick from CoffeeBeforeArch
 
 #include <benchmark/benchmark.h>
 
 #include <atomic>
 #include <cstdint>
+#include <mutex>
 #include <thread>
 
-// Simple Spinlock
-// Lock now performs local spinning
-struct Spinlock {
-  // Lock is just an atomic bool
-  std::atomic<bool> locked{false};
-
-  // Locking mechanism
-  void lock() {
-    // Keep trying
-    while (1) {
-      // Try and grab the lock
-      // Return if we get the lock
-      if (!locked.exchange(true)) return;
-
-      // If we didn't get the lock, just read the value which gets cached
-      // locally This leads to less traffic
-      while (locked.load())
-        ;
-    }
-  }
-
-  // Unlocking mechanism
-  // Just set the lock to free (0)
-  // Can also use the assignment operator
-  void unlock() { locked.store(false); }
-};
-
 // Increment val once each time the lock is acquired
-void inc_small(Spinlock &s, std::int64_t &val) {
+void inc_small(std::mutex &m, std::int64_t &val) {
   for (int i = 0; i < 100000; i++) {
-    s.lock();
+    m.lock();
     val++;
-    s.unlock();
+    m.unlock();
   }
 }
 
 // Increment val 100 times each time the lock is acquired
-void inc_medium(Spinlock &s, std::int64_t &val) {
+void inc_medium(std::mutex &m, std::int64_t &val) {
   for (int i = 0; i < 1000; i++) {
-    s.lock();
+    m.lock();
     for (int j = 0; j < 100; j++) val++;
-    s.unlock();
+    m.unlock();
   }
 }
 
 // Increment val 1000 times each time the lock is acquired
-void inc_large(Spinlock &s, std::int64_t &val) {
+void inc_large(std::mutex &m, std::int64_t &val) {
   for (int i = 0; i < 100; i++) {
-    s.lock();
+    m.lock();
     for (int j = 0; j < 1000; j++) val++;
-    s.unlock();
+    m.unlock();
   }
 }
 
-// Benchmark for naive spinlock
-static void spin_locally_small(benchmark::State &s) {
+static void std_mutex_small(benchmark::State &s) {
   // Sweep over a range of threads
   auto num_threads = s.range(0);
 
@@ -75,25 +46,25 @@ static void spin_locally_small(benchmark::State &s) {
   std::vector<std::thread> threads;
   threads.reserve(num_threads);
 
-  Spinlock sl;
+  std::mutex m;
 
   // Timing loop
   for (auto _ : s) {
     for (auto i = 0u; i < num_threads; i++) {
-      threads.emplace_back([&] { inc_small(sl, val); });
+      threads.emplace_back([&] { inc_small(m, val); });
     }
     // Join threads
     for (auto &thread : threads) thread.join();
     threads.clear();
   }
 }
-BENCHMARK(spin_locally_small)
+BENCHMARK(std_mutex_small)
     ->DenseRange(1, std::thread::hardware_concurrency())
     ->UseRealTime()
     ->Unit(benchmark::kMillisecond);
 
 // Benchmark for naive spinlock
-static void spin_locally_medium(benchmark::State &s) {
+static void std_mutex_medium(benchmark::State &s) {
   // Sweep over a range of threads
   auto num_threads = s.range(0);
 
@@ -104,25 +75,25 @@ static void spin_locally_medium(benchmark::State &s) {
   std::vector<std::thread> threads;
   threads.reserve(num_threads);
 
-  Spinlock sl;
+  std::mutex m;
 
   // Timing loop
   for (auto _ : s) {
     for (auto i = 0u; i < num_threads; i++) {
-      threads.emplace_back([&] { inc_medium(sl, val); });
+      threads.emplace_back([&] { inc_medium(m, val); });
     }
     // Join threads
     for (auto &thread : threads) thread.join();
     threads.clear();
   }
 }
-BENCHMARK(spin_locally_medium)
+BENCHMARK(std_mutex_medium)
     ->DenseRange(1, std::thread::hardware_concurrency())
     ->UseRealTime()
     ->Unit(benchmark::kMicrosecond);
 
 // Benchmark for naive spinlock
-static void spin_locally_large(benchmark::State &s) {
+static void std_mutex_large(benchmark::State &s) {
   // Sweep over a range of threads
   auto num_threads = s.range(0);
 
@@ -133,19 +104,19 @@ static void spin_locally_large(benchmark::State &s) {
   std::vector<std::thread> threads;
   threads.reserve(num_threads);
 
-  Spinlock sl;
+  std::mutex m;
 
   // Timing loop
   for (auto _ : s) {
     for (auto i = 0u; i < num_threads; i++) {
-      threads.emplace_back([&] { inc_large(sl, val); });
+      threads.emplace_back([&] { inc_large(m, val); });
     }
     // Join threads
     for (auto &thread : threads) thread.join();
     threads.clear();
   }
 }
-BENCHMARK(spin_locally_large)
+BENCHMARK(std_mutex_large)
     ->DenseRange(1, std::thread::hardware_concurrency())
     ->UseRealTime()
     ->Unit(benchmark::kMicrosecond);
