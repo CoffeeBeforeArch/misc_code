@@ -50,7 +50,7 @@ void inc_small(Spinlock &s, std::int64_t &val) {
 void inc_medium(Spinlock &s, std::int64_t &val) {
   for (int i = 0; i < 1000; i++) {
     s.lock();
-    for (int j = 0; j < 100; j++) val++;
+    for (int j = 0; j < 100; j++) benchmark::DoNotOptimize(val++);
     s.unlock();
   }
 }
@@ -59,7 +59,7 @@ void inc_medium(Spinlock &s, std::int64_t &val) {
 void inc_large(Spinlock &s, std::int64_t &val) {
   for (int i = 0; i < 100; i++) {
     s.lock();
-    for (int j = 0; j < 1000; j++) val++;
+    for (int j = 0; j < 1000; j++) benchmark::DoNotOptimize(val++);
     s.unlock();
   }
 }

@@ -21,7 +21,7 @@ void inc_small(std::mutex &m, std::int64_t &val) {
 void inc_medium(std::mutex &m, std::int64_t &val) {
   for (int i = 0; i < 1000; i++) {
     m.lock();
-    for (int j = 0; j < 100; j++) val++;
+    for (int j = 0; j < 100; j++) benchmark::DoNotOptimize(val++);
     m.unlock();
   }
 }
@@ -30,7 +30,7 @@ void inc_medium(std::mutex &m, std::int64_t &val) {
 void inc_large(std::mutex &m, std::int64_t &val) {
   for (int i = 0; i < 100; i++) {
     m.lock();
-    for (int j = 0; j < 1000; j++) val++;
+    for (int j = 0; j < 1000; j++) benchmark::DoNotOptimize(val++);
     m.unlock();
   }
 }
