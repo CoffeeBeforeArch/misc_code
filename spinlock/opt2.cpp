@@ -1,7 +1,7 @@
 // This program benchmarks an improved spinlock C++
 // Optimizations:
-//  1.) Spin locally (decreases traffic)
-//  2.) Backoff
+//  1.) Memory ordering
+//  2.) Spin locally
 // By: Nick from CoffeeBeforeArch
 
 #include <benchmark/benchmark.h>
@@ -22,19 +22,19 @@ struct Spinlock {
     while (1) {
       // Try and grab the lock
       // Return if we get the lock
-      if (!locked.exchange(true)) return;
+      if (!locked.exchange(true, std::memory_order_acquire)) return;
 
       // If we didn't get the lock, just read the value which gets cached
-      // locally. This leads to less traffic.
-      // Designed to improve the performance of spin-wait loops.
-      while (locked.load()) __builtin_ia32_pause();
+      // locally This leads to less traffic
+      while (locked.load(std::memory_order_relaxed))
+        ;
     }
   }
 
   // Unlocking mechanism
   // Just set the lock to free (0)
   // Can also use the assignment operator
-  void unlock() { locked.store(false); }
+  void unlock() { locked.store(false, std::memory_order_release); }
 };
 
 // Increment val once each time the lock is acquired
@@ -65,7 +65,7 @@ void inc_large(Spinlock &s, std::int64_t &val) {
 }
 
 // Benchmark for naive spinlock
-static void backoff_small(benchmark::State &s) {
+static void spin_locally_small(benchmark::State &s) {
   // Sweep over a range of threads
   auto num_threads = s.range(0);
 
@@ -88,13 +88,13 @@ static void backoff_small(benchmark::State &s) {
     threads.clear();
   }
 }
-BENCHMARK(backoff_small)
+BENCHMARK(spin_locally_small)
     ->DenseRange(1, std::thread::hardware_concurrency())
     ->UseRealTime()
     ->Unit(benchmark::kMillisecond);
 
 // Benchmark for naive spinlock
-static void backoff_medium(benchmark::State &s) {
+static void spin_locally_medium(benchmark::State &s) {
   // Sweep over a range of threads
   auto num_threads = s.range(0);
 
@@ -117,13 +117,13 @@ static void backoff_medium(benchmark::State &s) {
     threads.clear();
   }
 }
-BENCHMARK(backoff_medium)
+BENCHMARK(spin_locally_medium)
     ->DenseRange(1, std::thread::hardware_concurrency())
     ->UseRealTime()
     ->Unit(benchmark::kMicrosecond);
 
 // Benchmark for naive spinlock
-static void backoff_large(benchmark::State &s) {
+static void spin_locally_large(benchmark::State &s) {
   // Sweep over a range of threads
   auto num_threads = s.range(0);
 
@@ -146,7 +146,7 @@ static void backoff_large(benchmark::State &s) {
     threads.clear();
   }
 }
-BENCHMARK(backoff_large)
+BENCHMARK(spin_locally_large)
     ->DenseRange(1, std::thread::hardware_concurrency())
     ->UseRealTime()
     ->Unit(benchmark::kMicrosecond);

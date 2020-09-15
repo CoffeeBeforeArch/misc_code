@@ -1,6 +1,6 @@
-// This program benchmarks an improved spinlock C++
+// This program benchmarks a simple spinlock in C++
 // Optimizations:
-//  1.) Spin locally
+//  1.) Memory Ordering
 // By: Nick from CoffeeBeforeArch
 
 #include <benchmark/benchmark.h>
@@ -10,30 +10,23 @@
 #include <thread>
 
 // Simple Spinlock
-// Lock now performs local spinning
 struct Spinlock {
   // Lock is just an atomic bool
   std::atomic<bool> locked{false};
 
   // Locking mechanism
   void lock() {
-    // Keep trying
-    while (1) {
-      // Try and grab the lock
-      // Return if we get the lock
-      if (!locked.exchange(true)) return;
-
-      // If we didn't get the lock, just read the value which gets cached
-      // locally This leads to less traffic
-      while (locked.load())
-        ;
-    }
+    // Exchange will return the previous value of the lock
+    // If the lock is free (false), it is set to true and the loop exits
+    // If the lock is taken (true), spin in the loop until the loop exits
+    while (locked.exchange(true, std::memory_order_acquire))
+      ;
   }
 
   // Unlocking mechanism
   // Just set the lock to free (0)
   // Can also use the assignment operator
-  void unlock() { locked.store(false); }
+  void unlock() { locked.store(false, std::memory_order_release); }
 };
 
 // Increment val once each time the lock is acquired
@@ -64,7 +57,7 @@ void inc_large(Spinlock &s, std::int64_t &val) {
 }
 
 // Benchmark for naive spinlock
-static void spin_locally_small(benchmark::State &s) {
+static void memory_ordering_small(benchmark::State &s) {
   // Sweep over a range of threads
   auto num_threads = s.range(0);
 
@@ -87,13 +80,13 @@ static void spin_locally_small(benchmark::State &s) {
     threads.clear();
   }
 }
-BENCHMARK(spin_locally_small)
+BENCHMARK(memory_ordering_small)
     ->DenseRange(1, std::thread::hardware_concurrency())
     ->UseRealTime()
     ->Unit(benchmark::kMillisecond);
 
 // Benchmark for naive spinlock
-static void spin_locally_medium(benchmark::State &s) {
+static void memory_ordering_medium(benchmark::State &s) {
   // Sweep over a range of threads
   auto num_threads = s.range(0);
 
@@ -116,13 +109,13 @@ static void spin_locally_medium(benchmark::State &s) {
     threads.clear();
   }
 }
-BENCHMARK(spin_locally_medium)
+BENCHMARK(memory_ordering_medium)
     ->DenseRange(1, std::thread::hardware_concurrency())
     ->UseRealTime()
     ->Unit(benchmark::kMicrosecond);
 
 // Benchmark for naive spinlock
-static void spin_locally_large(benchmark::State &s) {
+static void memory_ordering_large(benchmark::State &s) {
   // Sweep over a range of threads
   auto num_threads = s.range(0);
 
@@ -145,7 +138,7 @@ static void spin_locally_large(benchmark::State &s) {
     threads.clear();
   }
 }
-BENCHMARK(spin_locally_large)
+BENCHMARK(memory_ordering_large)
     ->DenseRange(1, std::thread::hardware_concurrency())
     ->UseRealTime()
     ->Unit(benchmark::kMicrosecond);

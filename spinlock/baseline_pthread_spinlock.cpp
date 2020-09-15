@@ -1,83 +1,41 @@
-// This program benchmarks an improved spinlock C++
-// Optimizations:
-//  1.) Memory ordering
-//  2.) Spin locally
-//  3.) Backoff
-//  4.) Add exponential backoff
+// This program benchmarks pthread spinlock C++
 // By: Nick from CoffeeBeforeArch
 
 #include <benchmark/benchmark.h>
+#include <pthread.h>
 
 #include <atomic>
 #include <cstdint>
 #include <thread>
 
-// Simple Spinlock
-// Lock now performs local spinning
-struct Spinlock {
-  // Lock is just an atomic bool
-  std::atomic<bool> locked{false};
-
-  // Constants for number of backoff iterations
-  const int MAX_BACKOFF = 1 << 10;
-  const int MIN_BACKOFF = 1;
-
-  // Locking mechanism
-  void lock() {
-    // Start backoff at MIN_BACKOFF iterations
-    int backoff = MIN_BACKOFF;
-
-    // Keep trying
-    while (1) {
-      // Try and grab the lock
-      // Return if we get the lock
-      if (!locked.exchange(true, std::memory_order_acquire)) return;
-
-      // If we didn't get the lock, just read the value which gets cached
-      // locally. This leads to less traffic.
-      // Designed to improve the performance of spin-wait loops.
-      while (locked.load(std::memory_order_relaxed)) {
-        for (int i = 0; i < backoff; i++) __builtin_ia32_pause();
-        backoff = std::min(backoff << 1, MAX_BACKOFF);
-      }
-    }
-  }
-
-  // Unlocking mechanism
-  // Just set the lock to free (0)
-  // Can also use the assignment operator
-  void unlock() { locked.store(false, std::memory_order_release); }
-};
-
 // Increment val once each time the lock is acquired
-void inc_small(Spinlock &s, std::int64_t &val) {
+void inc_small(pthread_spinlock_t &sl, std::int64_t &val) {
   for (int i = 0; i < 100000; i++) {
-    s.lock();
+    pthread_spin_lock(&sl);
     val++;
-    s.unlock();
+    pthread_spin_unlock(&sl);
   }
 }
 
 // Increment val 100 times each time the lock is acquired
-void inc_medium(Spinlock &s, std::int64_t &val) {
+void inc_medium(pthread_spinlock_t &sl, std::int64_t &val) {
   for (int i = 0; i < 1000; i++) {
-    s.lock();
+    pthread_spin_lock(&sl);
     for (int j = 0; j < 100; j++) benchmark::DoNotOptimize(val++);
-    s.unlock();
+    pthread_spin_unlock(&sl);
   }
 }
 
 // Increment val 1000 times each time the lock is acquired
-void inc_large(Spinlock &s, std::int64_t &val) {
+void inc_large(pthread_spinlock_t &sl, std::int64_t &val) {
   for (int i = 0; i < 100; i++) {
-    s.lock();
+    pthread_spin_lock(&sl);
     for (int j = 0; j < 1000; j++) benchmark::DoNotOptimize(val++);
-    s.unlock();
+    pthread_spin_unlock(&sl);
   }
 }
 
-// Benchmark for naive spinlock
-static void exp_backoff_small(benchmark::State &s) {
+static void pthread_spinlock_small(benchmark::State &s) {
   // Sweep over a range of threads
   auto num_threads = s.range(0);
 
@@ -88,7 +46,9 @@ static void exp_backoff_small(benchmark::State &s) {
   std::vector<std::thread> threads;
   threads.reserve(num_threads);
 
-  Spinlock sl;
+  // Create a spinlock
+  pthread_spinlock_t sl;
+  pthread_spin_init(&sl, PTHREAD_PROCESS_PRIVATE);
 
   // Timing loop
   for (auto _ : s) {
@@ -100,13 +60,13 @@ static void exp_backoff_small(benchmark::State &s) {
     threads.clear();
   }
 }
-BENCHMARK(exp_backoff_small)
+BENCHMARK(pthread_spinlock_small)
     ->DenseRange(1, std::thread::hardware_concurrency())
     ->UseRealTime()
     ->Unit(benchmark::kMillisecond);
 
 // Benchmark for naive spinlock
-static void exp_backoff_medium(benchmark::State &s) {
+static void pthread_spinlock_medium(benchmark::State &s) {
   // Sweep over a range of threads
   auto num_threads = s.range(0);
 
@@ -117,7 +77,9 @@ static void exp_backoff_medium(benchmark::State &s) {
   std::vector<std::thread> threads;
   threads.reserve(num_threads);
 
-  Spinlock sl;
+  // Create a spinlock
+  pthread_spinlock_t sl;
+  pthread_spin_init(&sl, PTHREAD_PROCESS_PRIVATE);
 
   // Timing loop
   for (auto _ : s) {
@@ -129,13 +91,13 @@ static void exp_backoff_medium(benchmark::State &s) {
     threads.clear();
   }
 }
-BENCHMARK(exp_backoff_medium)
+BENCHMARK(pthread_spinlock_medium)
     ->DenseRange(1, std::thread::hardware_concurrency())
     ->UseRealTime()
     ->Unit(benchmark::kMicrosecond);
 
 // Benchmark for naive spinlock
-static void exp_backoff_large(benchmark::State &s) {
+static void pthread_spinlock_large(benchmark::State &s) {
   // Sweep over a range of threads
   auto num_threads = s.range(0);
 
@@ -146,7 +108,9 @@ static void exp_backoff_large(benchmark::State &s) {
   std::vector<std::thread> threads;
   threads.reserve(num_threads);
 
-  Spinlock sl;
+  // Create a spinlock
+  pthread_spinlock_t sl;
+  pthread_spin_init(&sl, PTHREAD_PROCESS_PRIVATE);
 
   // Timing loop
   for (auto _ : s) {
@@ -158,7 +122,7 @@ static void exp_backoff_large(benchmark::State &s) {
     threads.clear();
   }
 }
-BENCHMARK(exp_backoff_large)
+BENCHMARK(pthread_spinlock_large)
     ->DenseRange(1, std::thread::hardware_concurrency())
     ->UseRealTime()
     ->Unit(benchmark::kMicrosecond);

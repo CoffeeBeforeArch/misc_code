@@ -1,8 +1,8 @@
 // This program benchmarks an improved spinlock C++
 // Optimizations:
-//  1.) Spin locally (decreases traffic)
-//  2.) Backoff
-//  3.) Add memory ordering
+//  1.) Memory ordering
+//  2.) Spin locally
+//  3.) Backoff
 // By: Nick from CoffeeBeforeArch
 
 #include <benchmark/benchmark.h>
@@ -35,7 +35,7 @@ struct Spinlock {
   // Unlocking mechanism
   // Just set the lock to free (0)
   // Can also use the assignment operator
-  void unlock() { locked.store(false); }
+  void unlock() { locked.store(false, std::memory_order_release); }
 };
 
 // Increment val once each time the lock is acquired
@@ -66,7 +66,7 @@ void inc_large(Spinlock &s, std::int64_t &val) {
 }
 
 // Benchmark for naive spinlock
-static void memory_ordering_small(benchmark::State &s) {
+static void backoff_small(benchmark::State &s) {
   // Sweep over a range of threads
   auto num_threads = s.range(0);
 
@@ -89,13 +89,13 @@ static void memory_ordering_small(benchmark::State &s) {
     threads.clear();
   }
 }
-BENCHMARK(memory_ordering_small)
+BENCHMARK(backoff_small)
     ->DenseRange(1, std::thread::hardware_concurrency())
     ->UseRealTime()
     ->Unit(benchmark::kMillisecond);
 
 // Benchmark for naive spinlock
-static void memory_ordering_medium(benchmark::State &s) {
+static void backoff_medium(benchmark::State &s) {
   // Sweep over a range of threads
   auto num_threads = s.range(0);
 
@@ -118,13 +118,13 @@ static void memory_ordering_medium(benchmark::State &s) {
     threads.clear();
   }
 }
-BENCHMARK(memory_ordering_medium)
+BENCHMARK(backoff_medium)
     ->DenseRange(1, std::thread::hardware_concurrency())
     ->UseRealTime()
     ->Unit(benchmark::kMicrosecond);
 
 // Benchmark for naive spinlock
-static void memory_ordering_large(benchmark::State &s) {
+static void backoff_large(benchmark::State &s) {
   // Sweep over a range of threads
   auto num_threads = s.range(0);
 
@@ -147,7 +147,7 @@ static void memory_ordering_large(benchmark::State &s) {
     threads.clear();
   }
 }
-BENCHMARK(memory_ordering_large)
+BENCHMARK(backoff_large)
     ->DenseRange(1, std::thread::hardware_concurrency())
     ->UseRealTime()
     ->Unit(benchmark::kMicrosecond);
