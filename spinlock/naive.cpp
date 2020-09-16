@@ -54,7 +54,7 @@ void inc_large(Spinlock &s, std::int64_t &val) {
   }
 }
 
-// Benchmark for naive spinlock
+// Small Benchmark
 static void naive_small(benchmark::State &s) {
   // Sweep over a range of threads
   auto num_threads = s.range(0);
@@ -83,7 +83,7 @@ BENCHMARK(naive_small)
     ->UseRealTime()
     ->Unit(benchmark::kMillisecond);
 
-// Benchmark for naive spinlock
+// Medium Benchmark
 static void naive_medium(benchmark::State &s) {
   // Sweep over a range of threads
   auto num_threads = s.range(0);
@@ -112,7 +112,7 @@ BENCHMARK(naive_medium)
     ->UseRealTime()
     ->Unit(benchmark::kMicrosecond);
 
-// Benchmark for naive spinlock
+// Large Benchmark
 static void naive_large(benchmark::State &s) {
   // Sweep over a range of threads
   auto num_threads = s.range(0);

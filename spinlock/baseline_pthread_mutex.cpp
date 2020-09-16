@@ -35,6 +35,8 @@ void inc_large(std::mutex &m, std::int64_t &val) {
   }
 }
 
+
+// Benchmark Small
 static void std_mutex_small(benchmark::State &s) {
   // Sweep over a range of threads
   auto num_threads = s.range(0);
@@ -63,7 +65,7 @@ BENCHMARK(std_mutex_small)
     ->UseRealTime()
     ->Unit(benchmark::kMillisecond);
 
-// Benchmark for naive spinlock
+// Medium Benchmark
 static void std_mutex_medium(benchmark::State &s) {
   // Sweep over a range of threads
   auto num_threads = s.range(0);
@@ -92,7 +94,7 @@ BENCHMARK(std_mutex_medium)
     ->UseRealTime()
     ->Unit(benchmark::kMicrosecond);
 
-// Benchmark for naive spinlock
+// Large Benchmark
 static void std_mutex_large(benchmark::State &s) {
   // Sweep over a range of threads
   auto num_threads = s.range(0);
