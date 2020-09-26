@@ -1,8 +1,8 @@
 // This program benchmarks an improved spinlock C++
 // Optimizations:
-//  1.) Memory ordering
-//  2.) Spin locally
-//  3.) Backoff
+//  1.) Spin locally
+//  2.) Backoff
+//  3.) Add exponential backoff
 // By: Nick from CoffeeBeforeArch
 
 #include <benchmark/benchmark.h>
@@ -17,8 +17,15 @@ struct Spinlock {
   // Lock is just an atomic bool
   std::atomic<bool> locked{false};
 
+  // Constants for number of backoff iterations
+  const int MAX_BACKOFF = 1 << 10;
+  const int MIN_BACKOFF = 1;
+
   // Locking mechanism
   void lock() {
+    // Start backoff at MIN_BACKOFF iterations
+    int backoff = MIN_BACKOFF;
+
     // Keep trying
     while (1) {
       // Try and grab the lock
@@ -28,7 +35,10 @@ struct Spinlock {
       // If we didn't get the lock, just read the value which gets cached
       // locally. This leads to less traffic.
       // Designed to improve the performance of spin-wait loops.
-      while (locked.load(std::memory_order_relaxed)) __builtin_ia32_pause();
+      while (locked.load(std::memory_order_relaxed)) {
+        for (int i = 0; i < backoff; i++) __builtin_ia32_pause();
+        backoff = std::min(backoff << 1, MAX_BACKOFF);
+      }
     }
   }
 
@@ -66,7 +76,7 @@ void inc_large(Spinlock &s, std::int64_t &val) {
 }
 
 // Small Benchmark
-static void backoff_small(benchmark::State &s) {
+static void exp_backoff_small(benchmark::State &s) {
   // Sweep over a range of threads
   auto num_threads = s.range(0);
 
@@ -89,13 +99,13 @@ static void backoff_small(benchmark::State &s) {
     threads.clear();
   }
 }
-BENCHMARK(backoff_small)
+BENCHMARK(exp_backoff_small)
     ->DenseRange(1, std::thread::hardware_concurrency())
     ->UseRealTime()
     ->Unit(benchmark::kMillisecond);
 
 // Medium Benchmark
-static void backoff_medium(benchmark::State &s) {
+static void exp_backoff_medium(benchmark::State &s) {
   // Sweep over a range of threads
   auto num_threads = s.range(0);
 
@@ -118,13 +128,13 @@ static void backoff_medium(benchmark::State &s) {
     threads.clear();
   }
 }
-BENCHMARK(backoff_medium)
+BENCHMARK(exp_backoff_medium)
     ->DenseRange(1, std::thread::hardware_concurrency())
     ->UseRealTime()
     ->Unit(benchmark::kMicrosecond);
 
 // Large Benchmark
-static void backoff_large(benchmark::State &s) {
+static void exp_backoff_large(benchmark::State &s) {
   // Sweep over a range of threads
   auto num_threads = s.range(0);
 
@@ -147,7 +157,7 @@ static void backoff_large(benchmark::State &s) {
     threads.clear();
   }
 }
-BENCHMARK(backoff_large)
+BENCHMARK(exp_backoff_large)
     ->DenseRange(1, std::thread::hardware_concurrency())
     ->UseRealTime()
     ->Unit(benchmark::kMicrosecond);
