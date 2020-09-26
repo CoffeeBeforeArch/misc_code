@@ -21,11 +21,11 @@ struct Spinlock {
     while (1) {
       // Try and grab the lock
       // Return if we get the lock
-      if (!locked.exchange(true, std::memory_order_acquire)) return;
+      if (!locked.exchange(true)) return;
 
       // If we didn't get the lock, just read the value which gets cached
       // locally This leads to less traffic
-      while (locked.load(std::memory_order_relaxed))
+      while (locked.load())
         ;
     }
   }
@@ -33,7 +33,7 @@ struct Spinlock {
   // Unlocking mechanism
   // Just set the lock to free (0)
   // Can also use the assignment operator
-  void unlock() { locked.store(false, std::memory_order_release); }
+  void unlock() { locked.store(false); }
 };
 
 // Increment val once each time the lock is acquired

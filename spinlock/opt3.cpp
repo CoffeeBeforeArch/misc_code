@@ -30,12 +30,12 @@ struct Spinlock {
     while (1) {
       // Try and grab the lock
       // Return if we get the lock
-      if (!locked.exchange(true, std::memory_order_acquire)) return;
+      if (!locked.exchange(true)) return;
 
       // If we didn't get the lock, just read the value which gets cached
       // locally. This leads to less traffic.
       // Designed to improve the performance of spin-wait loops.
-      while (locked.load(std::memory_order_relaxed)) {
+      while (locked.load()) {
         for (int i = 0; i < backoff; i++) __builtin_ia32_pause();
         backoff = std::min(backoff << 1, MAX_BACKOFF);
       }
