@@ -18,7 +18,7 @@ static void custom_args(benchmark::internal::Benchmark *b) {
 }
 
 // Benchmark for using branches
-static void branchBenchRandom(benchmark::State &s) {
+static void branchBenchRandom_unlikely(benchmark::State &s) {
   // Get the input vector size
   auto N = 1 << s.range(0);
 
@@ -42,12 +42,14 @@ static void branchBenchRandom(benchmark::State &s) {
   // Benchmark main loop
   for (auto _ : s) {
     for (auto b : v_in)
-      if (b) *sink += s.range(0);
+      if (b) [[unlikely]] *sink += s.range(0);
   }
 
   // Free our memory
   delete sink;
 }
-BENCHMARK(branchBenchRandom)->Apply(custom_args)->Unit(benchmark::kMicrosecond);
+BENCHMARK(branchBenchRandom_unlikely)
+    ->Apply(custom_args)
+    ->Unit(benchmark::kMicrosecond);
 
 BENCHMARK_MAIN();
