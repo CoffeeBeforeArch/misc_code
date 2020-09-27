@@ -23,12 +23,12 @@ static void branchBenchRandom(benchmark::State &s) {
   auto N = 1 << s.range(0);
 
   // Get the distribution
-  double skew = s.range(1) / 100.0;
+  double probability = s.range(1) / 100.0;
 
   // Create random number generator
   std::random_device rd;
   std::mt19937 gen(rd());
-  std::bernoulli_distribution d(skew);
+  std::bernoulli_distribution d(probability);
 
   // Create a vector of random booleans
   std::vector<bool> v_in(N);
