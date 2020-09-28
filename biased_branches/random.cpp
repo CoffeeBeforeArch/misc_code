@@ -36,17 +36,13 @@ static void branchBenchRandom(benchmark::State &s) {
 
   // Output element
   // Dynamically allocated int isn't optimized away
-  int *sink = new int;
-  *sink = 0;
+  int sink = 0;
 
   // Benchmark main loop
   for (auto _ : s) {
     for (auto b : v_in)
-      if (b) *sink += s.range(0);
+      if (b) benchmark::DoNotOptimize(sink += s.range(0));
   }
-
-  // Free our memory
-  delete sink;
 }
 BENCHMARK(branchBenchRandom)->Apply(custom_args)->Unit(benchmark::kMicrosecond);
 
