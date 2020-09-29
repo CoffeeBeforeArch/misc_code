@@ -26,6 +26,7 @@ static void branchBenchRandom(benchmark::State &s) {
   double probability = s.range(1) / 100.0;
 
   // Create random number generator
+  // Bernoulli distribution gives T/F outcomes
   std::random_device rd;
   std::mt19937 gen(rd());
   std::bernoulli_distribution d(probability);
