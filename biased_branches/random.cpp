@@ -10,7 +10,6 @@
 // Function for generating argument pairs
 static void custom_args(benchmark::internal::Benchmark *b) {
   for (auto i : {14}) {
-    // Collect stats at 1/8, 1/2, and 7/8
     for (auto j : {0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100}) {
       b = b->ArgPair(i, j);
     }
