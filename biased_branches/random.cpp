@@ -35,7 +35,6 @@ static void branchBenchRandom(benchmark::State &s) {
   std::generate(begin(v_in), end(v_in), [&]() { return d(gen); });
 
   // Output element
-  // Dynamically allocated int isn't optimized away
   int sink = 0;
 
   // Benchmark main loop
