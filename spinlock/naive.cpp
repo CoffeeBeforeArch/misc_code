@@ -6,6 +6,7 @@
 #include <atomic>
 #include <cstdint>
 #include <thread>
+#include <vector>
 
 // Simple Spinlock
 struct Spinlock {
