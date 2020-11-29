@@ -1,61 +1,73 @@
 // This example shows how hardware barriers for x86
 // By: Nick from CoffeeBeforeArch
 
+#include <semaphore.h>
+
 #include <atomic>
+#include <cassert>
 #include <cstdio>
 #include <thread>
 
-void reorder(std::atomic<int> &signal, int &v1, int &v2, int &rec) {
+void reorder(sem_t &start, sem_t &end, int &v1, int &v2, int &rec) {
+  // Keep going until we are told to stop
   while (true) {
-    while (!signal.load())
-      ;
+    // Wait for the signal to start
+    sem_wait(&start);
 
     // Write to v2
-    v2 = 1;
+    v1 = 1;
 
     // Barrier to prevent re-ordering of read and write by compiler
-    //asm volatile("" : : : "memory");
+    // asm volatile("" : : : "memory");
     asm volatile("mfence" : : : "memory");
-    
-    // Read v1
-    rec = v1;
 
-    // Say we're done for this iterations
-    signal.store(false);
+    // Read v1
+    rec = v2;
+
+    // Say we're done for this iteration
+    sem_post(&end);
   }
 }
 
 int main() {
-  // Signaling atomics
-  alignas(64) std::atomic<int> a{0};
-  alignas(64) std::atomic<int> b{0};
+  // Semaphores for signaling threads
+  sem_t start1;
+  sem_init(&start1, 0, 0);
+  sem_t start2;
+  sem_init(&start2, 0, 0);
+  sem_t end;
+  sem_init(&end, 0, 0);
 
   // Variable for memory re-ordering
-  alignas(64) int v1, v2;
-  alignas(64) int r1, r2;
+  alignas(64) int v1 = 0, v2 = 0;
+  alignas(64) int r1 = 0, r2 = 0;
 
   // Start threads
-  std::thread t1([&] { reorder(a, v1, v2, r1); });
-  std::thread t2([&] { reorder(b, v2, v1, r2); });
+  std::thread t1([&] { reorder(start1, end, v1, v2, r1); });
+  std::thread t2([&] { reorder(start2, end, v2, v1, r2); });
 
-  // Go forever
-  for (int i = 0; i < 1000000; i++) {
+  for (int i = 0;; i++) {
     // Initialize the shared variables
     v1 = 0;
     v2 = 0;
 
-    // Tell the threads to go
-    a.store(1);
-    b.store(1);
+    // Signal the threads to start
+    sem_post(&start1);
+    sem_post(&start2);
 
-    // Wait for the threads to finish
-    while (a.load() == 1 && b.load() == 1)
-      ;
+    // Wait for them to finish
+    sem_wait(&end);
+    sem_wait(&end);
 
-    if (r1 == 0 && r2 == 0) {
-      printf("SAW MEMORY RE-ORDERING ON ITERATION %d\n", i);
-    }
+    // Check of both read values bypassed the loads
+    auto cond = (r1 == 0) && (r2 == 0);
+    if (cond) {
+      printf("ERROR! R1 = %d, R2 = %d, ITER %d\n", r1, r2, i);
+      assert(false);
+    } else
+      printf("ALL GOOD! R1 = %d, R2 = %d\n", r1, r2);
   }
 
+  // Should not get here (infinite loop)
   return 0;
 }
