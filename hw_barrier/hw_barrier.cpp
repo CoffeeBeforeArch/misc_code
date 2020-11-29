@@ -1,9 +1,9 @@
 // This example shows how hardware barriers for x86
 // By: Nick from CoffeeBeforeArch
 
+#include <emmintrin.h>
 #include <semaphore.h>
 
-#include <atomic>
 #include <cassert>
 #include <cstdio>
 #include <thread>
@@ -21,7 +21,7 @@ void reorder(sem_t &start, sem_t &end, int &v1, int &v2, int &rec) {
     // asm volatile("" : : : "memory");
 
     // Barrier to prevent re-ordering in the hardware!
-    asm volatile("mfence" : : : "memory");
+    _mm_mfence();
 
     // Read v1
     rec = v2;
