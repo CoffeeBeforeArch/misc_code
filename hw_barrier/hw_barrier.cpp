@@ -1,4 +1,4 @@
-// This example shows how hardware barriers for x86
+// This example shows off memory reordering and HW barriers on x86
 // By: Nick from CoffeeBeforeArch
 
 #include <emmintrin.h>
