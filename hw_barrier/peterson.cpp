@@ -10,9 +10,11 @@
 class Peterson {
  private:
   // Is this thread interested in the critical section
+  // Needs to be volatile to prevent caching in registers
   volatile int interested[2] = {0, 0};
 
   // Who's turn is it?
+  // Needs to be volatile to prevent caching in registers
   volatile int turn = 0;
 
  public:
@@ -26,6 +28,8 @@ class Peterson {
     turn = other;
 
     // Add memory fence to prevent reading interested early!
+    // This ensures all previous writes have become visable, and no reads
+    // have been re-ordered before this barrier
     _mm_mfence();
 
     // Wait until the other thread finishes or is not interested
