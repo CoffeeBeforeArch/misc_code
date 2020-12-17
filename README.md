@@ -1,17 +1,39 @@
-# Miscellaneous Code
+# Misc. Code
 
-This repository contains all code from YouTube videos not associated with any particular series by CoffeeBeforeArch but suggested by viewers.
+This repository holds various examples that don't have a permanent home yet.
 
 ## Contact
 
 Suggestions for specific content can be sent to: CoffeeBeforeArch@gmail.com
 
 ## Environment 
-Operating System: Ubuntu 18.04
+
+Operating System: Ubuntu 20.04
 
 Text Editor: VIM
 
-## Concepts covered in viewer-suggested videos 
-| Video | Concepts | Files |
-| ----- | -------- | ----- |
-| <a href=https://youtu.be/m7XmKrl0Q9A>Viewer Suggestions: Singly Linked Lists in Java</a> | Singly Linked List, Java | <a href=https://github.com/CoffeeBeforeArch/misc_code/blob/master/java_sll/LinkedList.java>LinkedList.java</a> |
+Compiler: g++-10
+
+## Examples
+
+This repository contains the following examples:
+
+- [Access pattern benchmarks](access_patterns)
+- [Biased branches benchmarks](biased_branches)
+- [Clamp benchmarks](clamp)
+- [CMake Example](cmake_example)
+- [Code Scheduling](code_scheduling)
+- [Data oriented design](dod)
+- [Branchless programming](conditions)
+- [Dot product benchmarks](dot_product)
+- [False sharing benchmarks](false_sharing)
+- [Hardware memory barriers](hw_barrier)
+- [Increment benchmarks](inc_bench)
+- [Java singly linked list](java_sll)
+- [Simple Google Benchmark](simple_bench)
+- [Strength reduction benchmark](strength_reduction)
+- [Short string optimization](strings)
+- [CUDA sum reduction](sum_reduction)
+- [TBB task group](task_group)
+- [Thread affinity benchmark](thread_affinity)
+- [CUDA vector addition](vector_add)
