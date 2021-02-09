@@ -1,4 +1,4 @@
-// This example shows off memory reordering and HW barriers on x86
+// This example shows off a memory problem on x86
 // By: Nick from CoffeeBeforeArch
 
 #include <emmintrin.h>
@@ -17,8 +17,8 @@ void reorder(sem_t &start, sem_t &end, int &v1, int &v2, int &rec) {
     // Write to v2
     v1 = 1;
 
-    // Barrier to prevent re-ordering in the hardware!
-    _mm_mfence();
+    // Barrier to prevent re-ordering of read and write by compiler
+    asm volatile("" : : : "memory");
 
     // Read v1
     rec = v2;
