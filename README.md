@@ -37,4 +37,3 @@ This repository contains the following examples:
 - [TBB task group](task_group)
 - [Thread affinity benchmark](thread_affinity)
 - [CUDA vector addition](vector_add)
-- [Double Buffering](double_buffering)
