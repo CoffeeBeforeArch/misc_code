@@ -2,17 +2,18 @@
 // By: Nick from CoffeeBeforeArch
 
 #include <emmintrin.h>
-#include <semaphore.h>
 
 #include <cassert>
 #include <cstdio>
+#include <semaphore>
 #include <thread>
 
-void reorder(sem_t &start, sem_t &end, int &v1, int &v2, int &rec) {
+void reorder(std::binary_semaphore &start, std::counting_semaphore<2> &end,
+             int &v1, int &v2, int &rec) {
   // Keep going forever
   while (true) {
     // Wait for the signal to start
-    sem_wait(&start);
+    start.acquire();
 
     // Write to v2
     v1 = 1;
@@ -24,18 +25,15 @@ void reorder(sem_t &start, sem_t &end, int &v1, int &v2, int &rec) {
     rec = v2;
 
     // Say we're done for this iteration
-    sem_post(&end);
+    end.release();
   }
 }
 
 int main() {
   // Semaphores for signaling threads
-  sem_t start1;
-  sem_t start2;
-  sem_t end;
-  sem_init(&start1, 0, 0);
-  sem_init(&start2, 0, 0);
-  sem_init(&end, 0, 0);
+  std::binary_semaphore s1(0);
+  std::binary_semaphore s2(0);
+  std::counting_semaphore<2> e(0);
 
   // Variable for memory re-ordering
   // Use alignas to put on different cache lines
@@ -43,8 +41,8 @@ int main() {
   alignas(64) int r1 = 0, r2 = 0;
 
   // Start threads
-  std::thread t1([&] { reorder(start1, end, v1, v2, r1); });
-  std::thread t2([&] { reorder(start2, end, v2, v1, r2); });
+  std::thread t1([&] { reorder(s1, e, v1, v2, r1); });
+  std::thread t2([&] { reorder(s2, e, v2, v1, r2); });
 
   for (int i = 0;; i++) {
     // Re-initialize the shared variables
@@ -52,12 +50,12 @@ int main() {
     v2 = 0;
 
     // Signal the threads to start
-    sem_post(&start1);
-    sem_post(&start2);
+    s1.release();
+    s2.release();
 
     // Wait for them to finish
-    sem_wait(&end);
-    sem_wait(&end);
+    e.acquire();
+    e.acquire();
 
     // Check of both read values bypassed the loads
     auto cond = (r1 == 0) && (r2 == 0);
