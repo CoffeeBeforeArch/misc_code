@@ -1,6 +1,6 @@
 # Misc. Code
 
-This repository holds various examples that don't have a permanent home yet.
+This repository holds various examples that don't have a home (yet)
 
 ## Contact
 
@@ -10,9 +10,9 @@ Suggestions for specific content can be sent to: CoffeeBeforeArch@gmail.com
 
 Operating System: Ubuntu 20.04
 
-Text Editor: VIM
+Text Editor: vim
 
-Compiler: g++-10
+Compiler: g++-11
 
 ## Examples
 
