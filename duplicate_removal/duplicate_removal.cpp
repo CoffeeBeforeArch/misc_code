@@ -49,7 +49,7 @@ static void baseline(benchmark::State &s) {
 BENCHMARK(baseline)->Apply(custom_args)->Unit(benchmark::kMicrosecond);
 
 // Benchmark that filters the values in a hash set
-static void hash_set(benchmark::State &s) {
+static void unordered_set(benchmark::State &s) {
   // Create input and output vectors
   int N = 1 << s.range(0);
   std::vector<int> v_in(N);
@@ -73,10 +73,10 @@ static void hash_set(benchmark::State &s) {
     filter.clear();
   }
 }
-BENCHMARK(hash_set)->Apply(custom_args)->Unit(benchmark::kMicrosecond);
+BENCHMARK(unordered_set)->Apply(custom_args)->Unit(benchmark::kMicrosecond);
 
 // Benchmark that filters with a has set then copies into a vector
-static void hash_set_copy(benchmark::State &s) {
+static void unordered_set_copy(benchmark::State &s) {
   // Create input and output vectors
   int N = 1 << s.range(0);
   std::vector<int> v_in(N);
@@ -106,6 +106,6 @@ static void hash_set_copy(benchmark::State &s) {
     filter.clear();
   }
 }
-BENCHMARK(hash_set_copy)->Apply(custom_args)->Unit(benchmark::kMicrosecond);
+BENCHMARK(unordered_set_copy)->Apply(custom_args)->Unit(benchmark::kMicrosecond);
 
 BENCHMARK_MAIN();
