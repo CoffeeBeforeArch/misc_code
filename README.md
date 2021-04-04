@@ -38,3 +38,4 @@ This repository contains the following examples:
 - [Thread affinity benchmark](thread_affinity)
 - [CUDA vector addition](vector_add)
 - [Duplicate Removal](duplicate_removal)
+- [Sorting Alternatives](sorting)
