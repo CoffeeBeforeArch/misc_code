@@ -17,7 +17,7 @@ static void custom_args(benchmark::internal::Benchmark *b) {
   }
 }
 
-// Benchmark that filters the values in a hash set
+// Benchmark for only filtering
 static void filter(benchmark::State &s) {
   // Create input and output vectors
   int N = 1 << s.range(0);
@@ -55,7 +55,7 @@ static void filter(benchmark::State &s) {
 }
 BENCHMARK(filter)->Apply(custom_args)->Unit(benchmark::kMicrosecond);
 
-// Benchmark that filters the values in a hash set
+// Benchmark for only sorting
 static void sort(benchmark::State &s) {
   // Create input and output vectors
   int N = 1 << s.range(0);
