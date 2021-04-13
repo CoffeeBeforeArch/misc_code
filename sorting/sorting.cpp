@@ -48,6 +48,8 @@ static void unordered_map(benchmark::State &s) {
   // Create input and output vectors
   int N = 1 << s.range(0);
   std::vector<int> v_in(N);
+  std::vector<int> v_out;
+  v_out.reserve(N);
   std::unordered_map<int, int> filter;
 
   // Create our random number generators
@@ -58,10 +60,11 @@ static void unordered_map(benchmark::State &s) {
   // Fill the input vector with random numbers
   std::generate(begin(v_in), end(v_in), [&] { return dist(rng); });
 
+  // A vector for our sorted non-duplicates
+  std::vector<int> tmp;
+
   // Benchmark loop
   for (auto _ : s) {
-    // A vector for our sorted non-duplicates
-    std::vector<int> tmp;
     // Go through each element
     for (auto i : v_in) {
       // If it is in the filter, increment the number of instances
@@ -78,8 +81,15 @@ static void unordered_map(benchmark::State &s) {
     // Sort the non-duplicates
     std::ranges::sort(tmp);
 
+    // Recreate the sorted vector
+    for (auto i : tmp) {
+      for (int j = 0; j < filter[i]; j++) v_out.push_back(i);
+    }
+
     // Clear each iteration
     filter.clear();
+    v_out.clear();
+    tmp.clear();
   }
 }
 BENCHMARK(unordered_map)->Apply(custom_args)->Unit(benchmark::kMicrosecond);
