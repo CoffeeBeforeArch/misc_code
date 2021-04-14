@@ -106,6 +106,37 @@ static void unordered_set_copy(benchmark::State &s) {
     filter.clear();
   }
 }
-BENCHMARK(unordered_set_copy)->Apply(custom_args)->Unit(benchmark::kMicrosecond);
+BENCHMARK(unordered_set_copy)
+    ->Apply(custom_args)
+    ->Unit(benchmark::kMicrosecond);
+
+// Benchmark that sorts the data then removes adjacent duplicates
+static void sort_unique(benchmark::State &s) {
+  // Create input and output vectors
+  int N = 1 << s.range(0);
+  std::vector<int> v_in(N);
+  std::vector<int> v_out;
+
+  // Create our random number generators
+  std::mt19937 rng;
+  rng.seed(std::random_device()());
+  std::uniform_int_distribution<int> dist(0, s.range(1));
+
+  // Fill the input vector with random numbers
+  std::generate(begin(v_in), end(v_in), [&] { return dist(rng); });
+
+  // Benchmark loop
+  for (auto _ : s) {
+    // Copy in the random numbers
+    v_out = v_in;
+
+    // Sort the vector
+    std::ranges::sort(v_out);
+
+    // Use std::unique to get rid of duplicates
+    std::ranges::unique(v_out);
+  }
+}
+BENCHMARK(sort_unique)->Apply(custom_args)->Unit(benchmark::kMicrosecond);
 
 BENCHMARK_MAIN();
