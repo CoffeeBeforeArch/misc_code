@@ -8,6 +8,8 @@
 #include <unordered_map>
 #include <vector>
 
+#include "absl/container/flat_hash_map.h"
+
 // Function for generating argument pairs
 static void custom_args(benchmark::internal::Benchmark *b) {
   for (auto i : {14, 15, 16}) {
@@ -93,5 +95,56 @@ static void unordered_map(benchmark::State &s) {
   }
 }
 BENCHMARK(unordered_map)->Apply(custom_args)->Unit(benchmark::kMicrosecond);
+
+// Benchmark that filters the values in a hash set
+static void flat_hash_map(benchmark::State &s) {
+  // Create input and output vectors
+  int N = 1 << s.range(0);
+  std::vector<int> v_in(N);
+  std::vector<int> v_out;
+  v_out.reserve(N);
+  absl::flat_hash_map<int, int> filter;
+
+  // Create our random number generators
+  std::mt19937 rng;
+  rng.seed(std::random_device()());
+  std::uniform_int_distribution<int> dist(0, s.range(1));
+
+  // Fill the input vector with random numbers
+  std::generate(begin(v_in), end(v_in), [&] { return dist(rng); });
+
+  // A vector for our sorted non-duplicates
+  std::vector<int> tmp;
+
+  // Benchmark loop
+  for (auto _ : s) {
+    // Go through each element
+    for (auto i : v_in) {
+      // If it is in the filter, increment the number of instances
+      if (filter.contains(i))
+        filter[i]++;
+      else {
+        // Otherwise, we found the first one
+        filter[i] = 1;
+        // Save one unique value to the vector
+        tmp.push_back(i);
+      }
+    }
+
+    // Sort the non-duplicates
+    std::ranges::sort(tmp);
+
+    // Recreate the sorted vector
+    for (auto i : tmp) {
+      for (int j = 0; j < filter[i]; j++) v_out.push_back(i);
+    }
+
+    // Clear each iteration
+    filter.clear();
+    v_out.clear();
+    tmp.clear();
+  }
+}
+BENCHMARK(flat_hash_map)->Apply(custom_args)->Unit(benchmark::kMicrosecond);
 
 BENCHMARK_MAIN();
