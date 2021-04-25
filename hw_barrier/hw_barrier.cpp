@@ -36,9 +36,10 @@ int main() {
   std::counting_semaphore<2> e(0);
 
   // Variable for memory re-ordering
-  // Use alignas to put on different cache lines
-  alignas(64) int v1 = 0, v2 = 0;
-  alignas(64) int r1 = 0, r2 = 0;
+  int v1 = 0;
+  int v2 = 0;
+  int r1 = 0;
+  int r2 = 0;
 
   // Start threads
   std::thread t1([&] { reorder(s1, e, v1, v2, r1); });
