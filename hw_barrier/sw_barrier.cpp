@@ -1,8 +1,6 @@
 // This example shows off a memory problem on x86
 // By: Nick from CoffeeBeforeArch
 
-#include <emmintrin.h>
-
 #include <cassert>
 #include <cstdio>
 #include <semaphore>
