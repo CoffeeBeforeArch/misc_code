@@ -39,3 +39,4 @@ This repository contains the following examples:
 - [CUDA vector addition](vector_add)
 - [Duplicate Removal](duplicate_removal)
 - [Sorting Alternatives](sorting)
+- [Peterson's Algorithm](peterson)
