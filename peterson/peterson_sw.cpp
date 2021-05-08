@@ -1,8 +1,6 @@
 // A practical example of hw memory barriers with Peterson's algorithm
 // By: Nick from CoffeeBeforeArch
 
-#include <emmintrin.h>
-
 #include <iostream>
 #include <thread>
 
