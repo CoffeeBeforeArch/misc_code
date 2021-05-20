@@ -1,4 +1,4 @@
-// A practical example of hw memory barriers with Peterson's algorithm
+// Peterson's algorithm
 // By: Nick from CoffeeBeforeArch
 
 #include <iostream>
@@ -24,9 +24,6 @@ class Peterson {
     // Assume the other thread has priority
     int other = 1 - tid;
     turn = other;
-
-    // Barrier to prevent re-ordering of read and write by compiler
-    asm volatile("" : : : "memory");
 
     // Wait until the other thread finishes or is not interested
     while (turn == other && interested[other])
